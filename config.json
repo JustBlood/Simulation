@@ -1,0 +1,16 @@
+{
+  "map_width": 20,
+  "map_height": 5,
+  "min_creatures": 10,
+  "max_creatures": 50,
+  "min_herbivore_count": 10,
+  "min_grass_count": 10,
+  "min_speed": 1,
+  "max_speed": 5,
+  "min_damage": 1,
+  "max_damage": 5,
+  "min_hp": 5,
+  "max_hp": 20,
+  "herbivore_heal": 7,
+  "predator_heal": 0
+}
