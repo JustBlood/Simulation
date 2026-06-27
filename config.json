@@ -1,8 +1,8 @@
 {
-  "map_width": 20,
-  "map_height": 5,
-  "min_creatures": 10,
-  "max_creatures": 50,
+  "map_width": 50,
+  "map_height": 10,
+  "min_creatures": 50,
+  "max_creatures": 150,
   "min_herbivore_count": 10,
   "min_grass_count": 10,
   "min_speed": 1,

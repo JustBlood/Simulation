@@ -9,13 +9,13 @@ import (
 
 type Simulation struct {
 	gameMap     *model.Map
-	renderer    service.Render
+	renderer    service.Renderer
 	step        int
 	initActions []service.Action
 	turnActions []service.Action
 }
 
-func NewSimulation(settings config.GlobalSettings, renderer service.Render, initActions []service.Action, turnActions []service.Action) (*Simulation, error) {
+func NewSimulation(settings config.GlobalSettings, renderer service.Renderer, initActions []service.Action, turnActions []service.Action) (*Simulation, error) {
 	gameMap, err := model.NewMap(settings.SimulationSettings)
 	if err != nil {
 		return nil, err
@@ -28,16 +28,16 @@ func (s *Simulation) NextTurn() {
 	for _, action := range s.turnActions {
 		action.RunAction(s.gameMap)
 	}
-	s.renderer(s.gameMap)
+	s.renderer.Render(s.gameMap)
 }
 
 func (s *Simulation) Start() {
 	for _, action := range s.initActions {
 		action.RunAction(s.gameMap)
 	}
-	s.renderer(s.gameMap)
+	s.renderer.Render(s.gameMap)
 }
 
-func (s *Simulation) Pause() {
-
+func (s *Simulation) Stop() {
+	s.renderer.Close()
 }

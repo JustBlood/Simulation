@@ -56,50 +56,46 @@ func NewOccupier(entityType OccupierType, params OccupierParams, pos Position) (
 	}
 }
 
-type Grass struct {
+type BaseOccupier struct {
 	pos Position
+}
+
+func (bo *BaseOccupier) GetPos() Position {
+	return bo.pos
+}
+
+type Grass struct {
+	BaseOccupier
 }
 
 func (Grass) GetType() OccupierType {
 	return GRASS
 }
 
-func (g Grass) GetPos() Position {
-	return g.pos
-}
-
 func NewGrass(pos Position) *Grass {
-	return &Grass{pos}
+	return &Grass{BaseOccupier{pos}}
 }
 
 type Tree struct {
-	pos Position
+	BaseOccupier
 }
 
 func (Tree) GetType() OccupierType {
 	return TREE
 }
 
-func (t Tree) GetPos() Position {
-	return t.pos
-}
-
 func NewTree(pos Position) *Tree {
-	return &Tree{pos}
+	return &Tree{BaseOccupier{pos}}
 }
 
 type Rock struct {
-	pos Position
+	BaseOccupier
 }
 
 func (Rock) GetType() OccupierType {
 	return ROCK
 }
 
-func (r Rock) GetPos() Position {
-	return r.pos
-}
-
 func NewRock(pos Position) *Rock {
-	return &Rock{pos}
+	return &Rock{BaseOccupier{pos}}
 }

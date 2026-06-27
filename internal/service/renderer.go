@@ -2,46 +2,87 @@ package service
 
 import (
 	"fmt"
-	"log/slog"
 	"simulation/internal/model"
+	"strings"
 	"time"
+
+	"github.com/mattn/go-runewidth"
 )
 
-type Render func(gameMap *model.Map)
+const cellWidth = 2
 
-func RenderInConsole(gameMap *model.Map) {
-	fmt.Print("\033[2J")
-	fmt.Println()
-	for range gameMap.GetWidth() {
-		fmt.Print("_")
+type Renderer interface {
+	Render(gameMap *model.Map)
+	Close()
+}
+
+type ConsoleRenderer struct {
+}
+
+func NewConsoleRenderer() *ConsoleRenderer {
+	fmt.Print("\033[2J\033[H")
+	fmt.Print("\033[?25l")
+
+	return &ConsoleRenderer{}
+}
+
+func (r *ConsoleRenderer) Close() {
+	fmt.Print("\033[?25h") // Показываем курсор обратно
+	fmt.Println()          // Переход на новую строку после карты
+}
+
+func (c *ConsoleRenderer) Render(gameMap *model.Map) {
+	var sb strings.Builder
+	totalHeight := gameMap.GetHeight() + 2
+	sb.WriteString(fmt.Sprintf("\033[%dA", totalHeight+3))
+	sb.WriteString("\033[H")
+
+	sb.WriteString("┌")
+	for w := 0; w < gameMap.GetWidth(); w++ {
+		sb.WriteString(strings.Repeat("─", cellWidth))
 	}
-	fmt.Println()
-	for i := range gameMap.GetHeight() {
-		fmt.Print("|")
-		for j := range gameMap.GetWidth() {
-			occ, exists := gameMap.PosToOcc[model.NewPosition(i, j)]
-			if !exists {
-				fmt.Print(" ")
-			} else {
+	sb.WriteString("┐\n")
+
+	for h := 0; h < gameMap.GetHeight(); h++ {
+		sb.WriteString("│")
+		for w := 0; w < gameMap.GetWidth(); w++ {
+			pos := model.NewPosition(h, w)
+
+			var symbol string
+			if occ, exists := gameMap.PosToOcc[pos]; exists {
 				switch occ.GetType() {
 				case model.GRASS:
-					fmt.Print("🌿")
+					symbol = "🌿"
 				case model.ROCK:
-					fmt.Print("🗻")
+					symbol = "🗻"
 				case model.TREE:
-					fmt.Print("🌳")
+					symbol = "🌳"
 				case model.HERBIVORE:
-					fmt.Print("🐒")
+					symbol = "🐒"
 				case model.PREDATOR:
-					fmt.Print("🐯")
+					symbol = "🐯"
 				}
+			} else {
+				symbol = "."
+			}
+
+			symbolWidth := runewidth.StringWidth(symbol)
+			padding := cellWidth - symbolWidth
+
+			sb.WriteString(symbol)
+			if padding > 0 {
+				sb.WriteString(strings.Repeat(" ", padding))
 			}
 		}
-		fmt.Print("|\n")
+		sb.WriteString("│\n")
 	}
-	for range gameMap.GetWidth() {
-		fmt.Print("_")
+
+	sb.WriteString("└")
+	for w := 0; w < gameMap.GetWidth(); w++ {
+		sb.WriteString(strings.Repeat("─", cellWidth))
 	}
-	slog.Debug("Map rendered")
+	sb.WriteString("┘\n")
+
+	fmt.Print(sb.String())
 	time.Sleep(time.Duration(1) * time.Second)
 }

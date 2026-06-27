@@ -6,56 +6,64 @@ type Creature interface {
 	GetSpeed() int
 	SetPosition(pos Position)
 	GetHp() int
-	TakeDamage(int) int
+	TakeDamage(int)
 	Heal(int) int
 	GetTargetSearchType() OccupierType
+	IsDead() bool
 }
 
-type Herbivore struct {
-	pos   Position
+type BaseCreature struct {
+	BaseOccupier
 	speed int
 	hp    int
 }
 
+type Herbivore struct {
+	BaseCreature
+}
+
 type Predator struct {
-	pos    Position
-	speed  int
-	hp     int
+	BaseCreature
 	damage int
 }
 
+func (bc *BaseCreature) GetSpeed() int {
+	return bc.speed
+}
+
+func (bc *BaseCreature) GetHp() int {
+	return bc.hp
+}
+
+func (bc *BaseCreature) SetPosition(newPos Position) {
+	bc.pos = newPos
+}
+
+func (bc *BaseCreature) TakeDamage(damage int) {
+	bc.hp -= damage
+}
+
+func (bc *BaseCreature) Heal(healed int) int {
+	bc.hp += healed
+	return bc.hp
+}
+
+func (bc *BaseCreature) IsDead() bool {
+	return bc.hp <= 0
+}
+
 func NewHerbivore(pos Position, speed int, hp int) *Herbivore {
-	return &Herbivore{pos, speed, hp}
+	return &Herbivore{
+		BaseCreature: BaseCreature{
+			BaseOccupier: BaseOccupier{pos: pos},
+			speed:        speed,
+			hp:           hp,
+		},
+	}
 }
 
 func (h *Herbivore) GetType() OccupierType {
 	return HERBIVORE
-}
-
-func (h *Herbivore) GetPos() Position {
-	return h.pos
-}
-
-func (h *Herbivore) GetSpeed() int {
-	return h.speed
-}
-
-func (h *Herbivore) GetHp() int {
-	return h.hp
-}
-
-func (h *Herbivore) SetPosition(newPos Position) {
-	h.pos = newPos
-}
-
-func (h *Herbivore) TakeDamage(damage int) int {
-	h.hp -= damage
-	return h.hp
-}
-
-func (h *Herbivore) Heal(healed int) int {
-	h.hp += healed
-	return h.hp
 }
 
 func (h *Herbivore) GetTargetSearchType() OccupierType {
@@ -63,43 +71,24 @@ func (h *Herbivore) GetTargetSearchType() OccupierType {
 }
 
 func NewPredator(pos Position, speed int, hp int, damage int) *Predator {
-	return &Predator{pos, speed, hp, damage}
+	return &Predator{
+		BaseCreature: BaseCreature{
+			BaseOccupier: BaseOccupier{pos: pos},
+			speed:        speed,
+			hp:           hp,
+		},
+		damage: damage,
+	}
 }
 
 func (p *Predator) GetType() OccupierType {
 	return PREDATOR
 }
 
-func (p *Predator) GetPos() Position {
-	return p.pos
-}
-
-func (p *Predator) GetSpeed() int {
-	return p.speed
-}
-
-func (p *Predator) GetHp() int {
-	return p.hp
-}
-
-func (p *Predator) SetPosition(newPos Position) {
-	p.pos = newPos
+func (p *Predator) GetTargetSearchType() OccupierType {
+	return HERBIVORE
 }
 
 func (p *Predator) GetDamage() int {
 	return p.damage
-}
-
-func (p *Predator) TakeDamage(damage int) int {
-	p.hp -= damage
-	return p.hp
-}
-
-func (p *Predator) Heal(healed int) int {
-	p.hp += healed
-	return p.hp
-}
-
-func (p *Predator) GetTargetSearchType() OccupierType {
-	return HERBIVORE
 }

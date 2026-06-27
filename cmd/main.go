@@ -95,10 +95,11 @@ func main() {
 		},
 		service.MoveAction{
 			CreatureSettings: settings.CreaturesSettings,
+			PathService:      &service.BreadthSearchPathService{},
 		},
 	}
 
-	sim, err := game.NewSimulation(*settings, service.RenderInConsole, initActions, turnActions)
+	sim, err := game.NewSimulation(*settings, service.NewConsoleRenderer(), initActions, turnActions)
 	if err != nil {
 		fmt.Print(err)
 		return
