@@ -11,7 +11,7 @@ type SpawnOccupiers struct {
 	Count              int
 	SimulationSettings config.SimulationSettings
 	CreaturesSettings  config.CreaturesSettings
-	FactoryFunc
+	model.FactoryFunc
 }
 
 func (s SpawnOccupiers) RunAction(gameMap *model.Map) error {
@@ -19,7 +19,7 @@ func (s SpawnOccupiers) RunAction(gameMap *model.Map) error {
 		for {
 			pos := model.NewPosition(rand.IntN(s.SimulationSettings.MapHeight), rand.IntN(s.SimulationSettings.MapWidth))
 			if gameMap.IsEmpty(pos) {
-				occ, err := s.FactoryFunc(GenerateRandomParams(s.CreaturesSettings), pos)
+				occ, err := s.FactoryFunc(model.GenerateRandomParams(s.CreaturesSettings), pos)
 				if err != nil {
 					return fmt.Errorf("Can't create Occupier: %w", err)
 				}

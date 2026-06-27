@@ -13,7 +13,7 @@ type BreadthSearchPathService struct {
 }
 
 func (BreadthSearchPathService) FindPath(gameMap *model.Map, startPos model.Position, searchType model.OccupierType) ([]model.Position, error) {
-	if !gameMap.IsInMap(startPos) {
+	if !gameMap.IsInMapBorders(startPos) {
 		return nil, fmt.Errorf("start position is out of map")
 	}
 
@@ -57,7 +57,7 @@ func getNextPositionsToCheck(currentPos model.Position, visited map[model.Positi
 			continue
 		}
 
-		if !gameMap.IsInMap(pos) {
+		if !gameMap.IsInMapBorders(pos) {
 			continue
 		}
 

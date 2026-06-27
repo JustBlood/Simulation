@@ -43,7 +43,7 @@ func LoadGlobalSettings(filename string) (*GlobalSettings, error) {
 	if globalSettings == nil {
 		data, err := os.ReadFile(filename)
 		if err != nil {
-			return nil, fmt.Errorf("ошибка чтения файла: %w", err)
+			return nil, fmt.Errorf("error in reading file: %w", err)
 		}
 
 		var simSettings SimulationSettings
@@ -51,15 +51,15 @@ func LoadGlobalSettings(filename string) (*GlobalSettings, error) {
 		var occSettings OccupiersSettings
 		err = json.Unmarshal(data, &simSettings)
 		if err != nil {
-			return nil, fmt.Errorf("ошибка парсинга JSON: %w", err)
+			return nil, fmt.Errorf("error in JSON parsing: %w", err)
 		}
 		err = json.Unmarshal(data, &creatureSettings)
 		if err != nil {
-			return nil, fmt.Errorf("ошибка парсинга JSON: %w", err)
+			return nil, fmt.Errorf("error in JSON parsing: %w", err)
 		}
 		err = json.Unmarshal(data, &occSettings)
 		if err != nil {
-			return nil, fmt.Errorf("ошибка парсинга JSON: %w", err)
+			return nil, fmt.Errorf("error in JSON parsing: %w", err)
 		}
 		globalSettings = &GlobalSettings{simSettings, creatureSettings, occSettings}
 	}
@@ -68,7 +68,7 @@ func LoadGlobalSettings(filename string) (*GlobalSettings, error) {
 }
 
 func InitLogger() *os.File {
-	logFile, err := os.OpenFile("simulation.log", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
+	logFile, err := os.OpenFile("./log/simulation.log", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
 	if err != nil {
 		panic(err)
 	}
