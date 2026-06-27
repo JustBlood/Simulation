@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"log/slog"
 	"math/rand/v2"
 	"simulation/internal/config"
@@ -20,8 +19,7 @@ type Simulation struct {
 func NewSimulation(settings *config.GlobalSettings, renderer Renderer) (*Simulation, error) {
 	needToCreateOccupiers := settings.MinOccupiers + rand.IntN(settings.MaxOccupiers-settings.MinOccupiers)
 
-	avg := needToCreateOccupiers / len(model.AllEntityTypes)
-	counts, err := distributeCreatures(needToCreateOccupiers, len(model.AllEntityTypes), avg*3/4, avg*5/4)
+	counts, err := distributeCreatures(needToCreateOccupiers, len(model.AllEntityTypes))
 
 	if err != nil {
 		slog.Error("Error in initialization", "error", err)
@@ -130,14 +128,7 @@ func getTurnActions(settings *config.GlobalSettings) []Action {
 	}
 }
 
-func distributeCreatures(total, zones, min, max int) ([]int, error) {
-	if total < zones*min || total > zones*max {
-		return nil, errors.New("can't distribute: total is out of bounds min/max")
-	}
-	if min > max {
-		return nil, errors.New("min should be less than max")
-	}
-
+func distributeCreatures(total, zones int) ([]int, error) {
 	result := make([]int, zones)
 
 	base := total / zones

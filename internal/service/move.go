@@ -12,7 +12,7 @@ type MoveAction struct {
 }
 
 func (action MoveAction) RunAction(gameMap *model.Map) error {
-	slog.Debug("MoveAction called", "positionsBefore", gameMap.PosToOcc)
+	slog.Debug("MoveAction called", "gameMap", gameMap)
 	creatures := gameMap.GetAllCreations()
 
 	for i := range creatures {
@@ -28,30 +28,37 @@ func (action MoveAction) RunAction(gameMap *model.Map) error {
 			continue
 		}
 
-		pathIndex := min(len(path)-1, creatures[i].GetSpeed())
+		pathIndex := min(len(path)-1, creatures[i].Speed())
 		slog.Debug("PathIndex calculated", "index", pathIndex)
 		targetReached := len(path)-1 == pathIndex
 		var killed bool
 		if targetReached {
-			killed = action.attackTheTarget(path, pathIndex, gameMap, creatures[i])
+			killed, err = action.attackTheTarget(path, pathIndex, gameMap, creatures[i])
+			if err != nil {
+				return err
+			}
 
 			if !killed {
 				pathIndex -= 1
 			}
 		}
 
-		delete(gameMap.PosToOcc, creatures[i].GetPos())
 		slog.Debug("Creature deleted from previous Position", "position", creatures[i].GetPos())
-		creatures[i].SetPosition(path[pathIndex])
-		gameMap.PosToOcc[creatures[i].GetPos()] = creatures[i]
+		err = gameMap.ReplaceOccupierPosition(creatures[i], path[pathIndex])
+		if err != nil {
+			return err
+		}
 	}
-	slog.Debug("MoveAction called", "positionsAfter", gameMap.PosToOcc)
+	slog.Debug("MoveAction called", "gameMap", gameMap)
 	return nil
 }
 
-func (action MoveAction) attackTheTarget(path []model.Position, pathIndex int, gameMap *model.Map, creature model.Creature) bool {
+func (action MoveAction) attackTheTarget(path []model.Position, pathIndex int, gameMap *model.Map, creature model.Creature) (bool, error) {
 	targetPos := path[pathIndex]
-	occupier := gameMap.PosToOcc[targetPos]
+	occupier, err := gameMap.GetOccupierByPosition(targetPos)
+	if err != nil {
+		return false, err
+	}
 	slog.Debug("Creature reach the target", "creature", creature, "target", occupier)
 
 	targetCreature, targetIsCreature := occupier.(model.Creature)
@@ -66,11 +73,11 @@ func (action MoveAction) attackTheTarget(path []model.Position, pathIndex int, g
 		action.afterKill(targetPos, creature, gameMap)
 	}
 
-	return targetKilled
+	return targetKilled, nil
 }
 
 func (action MoveAction) afterKill(targetPos model.Position, attacked model.Creature, gameMap *model.Map) {
-	delete(gameMap.PosToOcc, targetPos)
+	gameMap.DeleteOccupierByPosition(targetPos)
 	attacked.Heal(action.CreatureSettings.PredatorHeal)
 	slog.Debug("Target has been deleted (killed)", "target", targetPos, "attacked", attacked)
 }

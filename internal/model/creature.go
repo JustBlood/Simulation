@@ -3,9 +3,8 @@ package model
 type Creature interface {
 	Occupier
 
-	GetSpeed() int
-	SetPosition(pos Position)
-	GetHp() int
+	Speed() int
+	HP() int
 	TakeDamage(int)
 	Heal(int) int
 	GetTargetSearchType() OccupierType
@@ -18,16 +17,12 @@ type baseCreature struct {
 	hp    int
 }
 
-func (bc *baseCreature) GetSpeed() int {
+func (bc *baseCreature) Speed() int {
 	return bc.speed
 }
 
-func (bc *baseCreature) GetHp() int {
+func (bc *baseCreature) HP() int {
 	return bc.hp
-}
-
-func (bc *baseCreature) SetPosition(newPos Position) {
-	bc.pos = newPos
 }
 
 func (bc *baseCreature) TakeDamage(damage int) {

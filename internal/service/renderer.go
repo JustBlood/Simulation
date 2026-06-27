@@ -63,7 +63,8 @@ func renderPosition(r int, c int, gameMap *model.Map, sb *strings.Builder) {
 	pos := model.NewPosition(r, c)
 
 	var symbol string
-	if occ, exists := gameMap.PosToOcc[pos]; exists {
+	occ, err := gameMap.GetOccupierByPosition(pos)
+	if err == nil {
 		switch occ.GetType() {
 		case model.GRASS:
 			symbol = "🌿"

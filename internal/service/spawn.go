@@ -23,7 +23,7 @@ func (s SpawnOccupiers) RunAction(gameMap *model.Map) error {
 				if err != nil {
 					return fmt.Errorf("Can't create Occupier: %w", err)
 				}
-				err = gameMap.Set(pos, occ)
+				err = gameMap.SetOccupierToPosition(pos, occ)
 				if err != nil {
 					return fmt.Errorf("Can't set occupier to pos %w", err)
 				}

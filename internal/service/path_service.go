@@ -28,7 +28,8 @@ func (BreadthSearchPathService) FindPath(gameMap *model.Map, startPos model.Posi
 		currentPos := queue[head]
 		head++
 
-		if occ, exists := gameMap.PosToOcc[currentPos]; exists && currentPos != startPos {
+		occ, err := gameMap.GetOccupierByPosition(currentPos)
+		if err == nil && currentPos != startPos {
 			if occ.GetType() == searchType {
 				return reconstructPath(cameFrom, currentPos, startPos), nil
 			}
@@ -61,7 +62,8 @@ func getNextPositionsToCheck(currentPos model.Position, visited map[model.Positi
 			continue
 		}
 
-		if occ, exists := gameMap.PosToOcc[pos]; exists {
+		occ, err := gameMap.GetOccupierByPosition(pos)
+		if err == nil {
 			if occ.GetType() != searchType {
 				continue
 			}

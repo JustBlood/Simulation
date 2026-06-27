@@ -50,10 +50,10 @@ func LoadGlobalSettings(filename string) (*GlobalSettings, error) {
 	return &settings, nil
 }
 
-func InitLogger() *os.File {
+func InitLogger() (*os.File, error) {
 	logFile, err := os.OpenFile("./log/simulation.log", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	logger := slog.New(slog.NewTextHandler(logFile, &slog.HandlerOptions{
@@ -61,5 +61,5 @@ func InitLogger() *os.File {
 	}))
 	slog.SetDefault(logger)
 
-	return logFile
+	return logFile, nil
 }

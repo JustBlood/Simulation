@@ -7,7 +7,11 @@ import (
 )
 
 func main() {
-	logFile := config.InitLogger()
+	logFile, err := config.InitLogger()
+	if err != nil {
+		fmt.Print(err)
+		return
+	}
 	defer logFile.Close()
 
 	settings, err := config.LoadGlobalSettings("./config/config.json")

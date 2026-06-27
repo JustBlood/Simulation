@@ -21,6 +21,7 @@ var AllEntityTypes = []OccupierType{
 type Occupier interface {
 	GetType() OccupierType
 	GetPos() Position
+	SetPos(newPos Position)
 }
 
 type baseOccupier struct {
@@ -29,4 +30,8 @@ type baseOccupier struct {
 
 func (bo *baseOccupier) GetPos() Position {
 	return bo.pos
+}
+
+func (bo *baseOccupier) SetPos(newPos Position) {
+	bo.pos = newPos
 }
