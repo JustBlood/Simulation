@@ -5,6 +5,12 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
+)
+
+const (
+	logsDir     = "logs"
+	logFileName = "simulation.log"
 )
 
 type GlobalSettings struct {
@@ -51,7 +57,12 @@ func LoadGlobalSettings(filename string) (*GlobalSettings, error) {
 }
 
 func InitLogger() (*os.File, error) {
-	logFile, err := os.OpenFile("./log/simulation.log", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
+	if err := os.MkdirAll(logsDir, 0755); err != nil {
+		return nil, fmt.Errorf("failed to create logs directory: %w", err)
+	}
+
+	logFilePath := filepath.Join(logsDir, "simulation.log")
+	logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
 	if err != nil {
 		return nil, err
 	}
