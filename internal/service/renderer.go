@@ -59,8 +59,8 @@ func renderUpperBounds(sb *strings.Builder, totalHeight int, gameMap *model.Map)
 	sb.WriteString("┐\n")
 }
 
-func renderPosition(h int, w int, gameMap *model.Map, sb *strings.Builder) {
-	pos := model.NewPosition(h, w)
+func renderPosition(r int, c int, gameMap *model.Map, sb *strings.Builder) {
+	pos := model.NewPosition(r, c)
 
 	var symbol string
 	if occ, exists := gameMap.PosToOcc[pos]; exists {

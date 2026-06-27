@@ -13,7 +13,7 @@ type MoveAction struct {
 
 func (action MoveAction) RunAction(gameMap *model.Map) error {
 	slog.Debug("MoveAction called", "positionsBefore", gameMap.PosToOcc)
-	creatures := gameMap.GetAllCreationsFromMap()
+	creatures := gameMap.GetAllCreations()
 
 	for i := range creatures {
 		if creatures[i].IsDead() {

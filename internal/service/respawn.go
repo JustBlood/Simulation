@@ -11,12 +11,12 @@ type RespawnOccupiers struct {
 	SimulationSettings config.SimulationSettings
 	CreaturesSettings  config.CreaturesSettings
 	MinimalCount       int
+	OccupierType       model.OccupierType
 	model.FactoryFunc
 }
 
 func (r RespawnOccupiers) RunAction(gameMap *model.Map) error {
-	occ, _ := r.FactoryFunc(model.GenerateRandomParams(r.CreaturesSettings), model.NewPosition(-1, -1))
-	countToRespawn := r.MinimalCount - gameMap.CountOccupiersOfType(occ.GetType())
+	countToRespawn := r.MinimalCount - gameMap.CountOccupiersOfType(r.OccupierType)
 	if countToRespawn > 0 {
 		return SpawnOccupiers{countToRespawn, r.SimulationSettings, r.CreaturesSettings, r.FactoryFunc}.RunAction(gameMap)
 	}

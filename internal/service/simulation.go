@@ -109,6 +109,7 @@ func getTurnActions(settings *config.GlobalSettings) []Action {
 			SimulationSettings: settings.SimulationSettings,
 			CreaturesSettings:  settings.CreaturesSettings,
 			MinimalCount:       settings.MinGrassCount,
+			OccupierType:       model.GRASS,
 			FactoryFunc: func(OccupierParams model.OccupierParams, pos model.Position) (model.Occupier, error) {
 				return model.NewGrass(pos), nil
 			},
@@ -117,6 +118,7 @@ func getTurnActions(settings *config.GlobalSettings) []Action {
 			SimulationSettings: settings.SimulationSettings,
 			CreaturesSettings:  settings.CreaturesSettings,
 			MinimalCount:       settings.MinHerbivoreCount,
+			OccupierType:       model.HERBIVORE,
 			FactoryFunc: func(OccupierParams model.OccupierParams, pos model.Position) (model.Occupier, error) {
 				return model.NewHerbivore(pos, OccupierParams.Speed, OccupierParams.HP), nil
 			},

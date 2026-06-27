@@ -45,10 +45,10 @@ func (BreadthSearchPathService) FindPath(gameMap *model.Map, startPos model.Posi
 
 func getNextPositionsToCheck(currentPos model.Position, visited map[model.Position]bool, gameMap *model.Map, searchType model.OccupierType) []model.Position {
 	nextPositions := []model.Position{
-		model.NewPosition(currentPos.Height+1, currentPos.Width),
-		model.NewPosition(currentPos.Height, currentPos.Width+1),
-		model.NewPosition(currentPos.Height-1, currentPos.Width),
-		model.NewPosition(currentPos.Height, currentPos.Width-1),
+		model.NewPosition(currentPos.Row+1, currentPos.Column),
+		model.NewPosition(currentPos.Row, currentPos.Column+1),
+		model.NewPosition(currentPos.Row-1, currentPos.Column),
+		model.NewPosition(currentPos.Row, currentPos.Column-1),
 	}
 
 	var validPositions []model.Position

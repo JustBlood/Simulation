@@ -6,12 +6,12 @@ import (
 )
 
 type Position struct {
-	Height int
-	Width  int
+	Row    int
+	Column int
 }
 
-func NewPosition(height int, width int) Position {
-	return Position{height, width}
+func NewPosition(row int, column int) Position {
+	return Position{row, column}
 }
 
 type Map struct {
@@ -37,7 +37,7 @@ func (m *Map) Set(pos Position, occ Occupier) error {
 	return nil
 }
 
-func (m *Map) GetAllCreationsFromMap() []Creature {
+func (m *Map) GetAllCreations() []Creature {
 	creatures := []Creature{}
 	for i := range m.PosToOcc {
 		if creature, ok := m.PosToOcc[i].(Creature); ok {
@@ -58,7 +58,7 @@ func (m *Map) CountOccupiersOfType(occupierType OccupierType) int {
 }
 
 func (m *Map) IsInMapBorders(pos Position) bool {
-	return pos.Height >= 0 && pos.Height < m.height && pos.Width >= 0 && pos.Width < m.width
+	return pos.Row >= 0 && pos.Row < m.height && pos.Column >= 0 && pos.Column < m.width
 }
 
 func (m *Map) GetHeight() int {

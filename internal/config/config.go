@@ -7,8 +7,6 @@ import (
 	"os"
 )
 
-var globalSettings *GlobalSettings
-
 type GlobalSettings struct {
 	SimulationSettings
 	CreaturesSettings
@@ -40,31 +38,16 @@ type OccupiersSettings struct {
 }
 
 func LoadGlobalSettings(filename string) (*GlobalSettings, error) {
-	if globalSettings == nil {
-		data, err := os.ReadFile(filename)
-		if err != nil {
-			return nil, fmt.Errorf("error in reading file: %w", err)
-		}
-
-		var simSettings SimulationSettings
-		var creatureSettings CreaturesSettings
-		var occSettings OccupiersSettings
-		err = json.Unmarshal(data, &simSettings)
-		if err != nil {
-			return nil, fmt.Errorf("error in JSON parsing: %w", err)
-		}
-		err = json.Unmarshal(data, &creatureSettings)
-		if err != nil {
-			return nil, fmt.Errorf("error in JSON parsing: %w", err)
-		}
-		err = json.Unmarshal(data, &occSettings)
-		if err != nil {
-			return nil, fmt.Errorf("error in JSON parsing: %w", err)
-		}
-		globalSettings = &GlobalSettings{simSettings, creatureSettings, occSettings}
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, fmt.Errorf("error in reading file: %w", err)
 	}
 
-	return globalSettings, nil
+	var settings GlobalSettings
+	if err := json.Unmarshal(data, &settings); err != nil {
+		return nil, fmt.Errorf("error parsing JSON: %w", err)
+	}
+	return &settings, nil
 }
 
 func InitLogger() *os.File {
@@ -73,7 +56,6 @@ func InitLogger() *os.File {
 		panic(err)
 	}
 
-	// Структурированный JSON-логгер (удобно grep'ать)
 	logger := slog.New(slog.NewTextHandler(logFile, &slog.HandlerOptions{
 		Level: slog.LevelDebug,
 	}))
