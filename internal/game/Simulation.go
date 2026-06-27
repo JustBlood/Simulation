@@ -1,6 +1,7 @@
 package game
 
 import (
+	"log/slog"
 	"simulation/internal/config"
 	"simulation/internal/model"
 	"simulation/internal/service"
@@ -23,6 +24,7 @@ func NewSimulation(settings config.GlobalSettings, renderer service.Render, init
 }
 
 func (s *Simulation) NextTurn() {
+	slog.Debug("Simulation.NextTurn called")
 	for _, action := range s.turnActions {
 		action.RunAction(s.gameMap)
 	}

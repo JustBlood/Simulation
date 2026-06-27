@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"math/rand/v2"
 	"simulation/internal/config"
 	"simulation/internal/game"
@@ -11,6 +12,9 @@ import (
 )
 
 func main() {
+	logFile := config.InitLogger()
+	defer logFile.Close()
+
 	settings, err := config.LoadGlobalSettings("../config.json")
 	if err != nil {
 		fmt.Print(err)
@@ -99,7 +103,9 @@ func main() {
 		fmt.Print(err)
 		return
 	}
+	slog.Debug("Simulation starting.", "simulation", sim)
 	sim.Start()
+	slog.Debug("Simulation started.")
 	for {
 		sim.NextTurn()
 	}

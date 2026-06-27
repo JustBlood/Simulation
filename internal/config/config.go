@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 )
 
@@ -63,4 +64,19 @@ func LoadGlobalSettings(filename string) (*GlobalSettings, error) {
 	}
 
 	return globalSettings, nil
+}
+
+func InitLogger() *os.File {
+	logFile, err := os.OpenFile("simulation.log", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
+	if err != nil {
+		panic(err)
+	}
+
+	// Структурированный JSON-логгер (удобно grep'ать)
+	logger := slog.New(slog.NewTextHandler(logFile, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}))
+	slog.SetDefault(logger)
+
+	return logFile
 }

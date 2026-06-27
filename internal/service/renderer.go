@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log/slog"
 	"simulation/internal/model"
 	"time"
 )
@@ -41,5 +42,6 @@ func RenderInConsole(gameMap *model.Map) {
 	for range gameMap.GetWidth() {
 		fmt.Print("_")
 	}
+	slog.Debug("Map rendered")
 	time.Sleep(time.Duration(1) * time.Second)
 }

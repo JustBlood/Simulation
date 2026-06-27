@@ -2,8 +2,10 @@ package service
 
 import (
 	"fmt"
+	"log/slog"
 	"simulation/internal/config"
 	"simulation/internal/model"
+	"slices"
 )
 
 type MoveAction struct {
@@ -11,12 +13,14 @@ type MoveAction struct {
 }
 
 func (action MoveAction) RunAction(gameMap *model.Map) error {
+	slog.Debug("MoveAction called", "positionsBefore", gameMap.PosToOcc)
 	// todo: пройтись по всем сущностям алгоритмом поиска
 	// если это травоядное - найти траву
 	// если это хищник - найти травоядное
 	// ходят все в разнобой, всегда в разной последовательности, чтобы у отдельных особей не было преимущества
 	//
 	creatures := []model.Creature{}
+	deletedCreatures := []model.Creature{} // fixme: можно перенести в model.Creature
 	for _, v := range gameMap.PosToOcc {
 		if creature, ok := v.(model.Creature); ok { // явно проверяем тип Creature
 			creatures = append(creatures, creature)
@@ -24,20 +28,32 @@ func (action MoveAction) RunAction(gameMap *model.Map) error {
 	}
 
 	for _, creature := range creatures {
+		if slices.Contains(deletedCreatures, creature) {
+			slog.Info("Skip deleted creature on this cycle")
+			continue
+		}
+
 		path, err := BreadthFirstSearchPath(gameMap, creature.GetPos(), creature.GetTargetSearchType())
+		slog.Debug("Finded path for creature.", "creature", creature, "path", path)
 		if err != nil {
+			slog.Error("Can't find correct path.", "creature", creature, "error", err)
 			continue // не осталось либо травоядных, либо травы, либо дойти до них невозможно
 		}
 		delete(gameMap.PosToOcc, creature.GetPos())
+		slog.Debug("Creature deleted from previous Position", "position", creature.GetPos())
 		pathIndex := min(len(path)-1, creature.GetSpeed())
+		slog.Debug("PathIndex calculated", "index", pathIndex)
 		if len(path)-1 == pathIndex {
 			// достиг цели
 			targetPos := path[pathIndex]
 			occupier := gameMap.PosToOcc[targetPos]
+			slog.Debug("Creature reach the target", "creature", creature, "target", occupier)
 			if targetCreature, ok := occupier.(model.Creature); ok {
 				if targetCreature.TakeDamage(creature.(*model.Predator).GetDamage()) <= 0 {
 					// Вот и помер дед Максим
 					delete(gameMap.PosToOcc, targetCreature.GetPos())
+					deletedCreatures = append(deletedCreatures, targetCreature)
+					slog.Debug("Target has been deleted", "target", targetCreature)
 					creature.Heal(action.CreatureSettings.PredatorHeal)
 				} else {
 					// Существо не убили, клетку его не занимаем
@@ -46,12 +62,14 @@ func (action MoveAction) RunAction(gameMap *model.Map) error {
 			} else {
 				// Если травка-муравка, то сразу удаляем
 				delete(gameMap.PosToOcc, targetPos)
+				slog.Debug("Target has been deleted", "target", targetCreature)
 				creature.Heal(action.CreatureSettings.HerbivoreHeal)
 			}
 		}
 		creature.SetPosition(path[pathIndex])
 		gameMap.PosToOcc[creature.GetPos()] = creature
 	}
+	slog.Debug("MoveAction called", "positionsAfter", gameMap.PosToOcc)
 	return nil
 }
 
@@ -91,7 +109,7 @@ func BreadthFirstSearchPath(gameMap *model.Map, startPos model.Position, searchT
 			queue = append(queue, nextPos)
 		}
 	}
-	return nil, fmt.Errorf("can't find path to nearest resource")
+	return []model.Position{startPos}, fmt.Errorf("can't find path to nearest resource")
 }
 
 func getNextPositionsToCheck(currentPos model.Position, visited map[model.Position]bool, gameMap *model.Map, searchType model.OccupierType) []model.Position {
@@ -134,7 +152,6 @@ func getNextPositionsToCheck(currentPos model.Position, visited map[model.Positi
 func reconstructPath(cameFrom map[model.Position]model.Position, target, start model.Position) []model.Position {
 	path := []model.Position{}
 
-	// Теперь, когда мы гарантируем, что в cameFrom нет циклов, этот цикл всегда завершится.
 	for current := target; current != start; current = cameFrom[current] {
 		path = append(path, current)
 	}
@@ -143,6 +160,10 @@ func reconstructPath(cameFrom map[model.Position]model.Position, target, start m
 	// Разворачиваем слайс
 	for i, j := 0, len(path)-1; i < j; i, j = i+1, j-1 {
 		path[i], path[j] = path[j], path[i]
+	}
+
+	if len(path) == 0 {
+		return []model.Position{start}
 	}
 
 	return path
