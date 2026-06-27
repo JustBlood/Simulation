@@ -14,7 +14,7 @@ const (
 	PREDATOR  OccupierType = "PREDATOR"
 )
 
-// 3. Единый источник истины — слайс всех возможных значений
+// Cлайс всех возможных значений
 var AllEntityTypes = []OccupierType{
 	ROCK,
 	TREE,

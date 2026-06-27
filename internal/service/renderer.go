@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"simulation/internal/model"
 	"strings"
-	"time"
 
 	"github.com/mattn/go-runewidth"
 )
@@ -84,5 +83,4 @@ func (c *ConsoleRenderer) Render(gameMap *model.Map) {
 	sb.WriteString("┘\n")
 
 	fmt.Print(sb.String())
-	time.Sleep(time.Duration(1) * time.Second)
 }

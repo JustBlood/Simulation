@@ -16,8 +16,9 @@ type GlobalSettings struct {
 }
 
 type SimulationSettings struct {
-	MapWidth  int `json:"map_width"`
-	MapHeight int `json:"map_height"`
+	MapWidth         int `json:"map_width"`
+	MapHeight        int `json:"map_height"`
+	RenderIntervalMs int `json:"render_interval_ms"`
 }
 
 type CreaturesSettings struct {

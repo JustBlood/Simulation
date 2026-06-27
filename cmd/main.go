@@ -22,17 +22,13 @@ func main() {
 	}
 	needToCreateOccupiers := settings.MinOccupiers + rand.IntN(settings.MaxOccupiers-settings.MinOccupiers)
 
-	counts, _ := DistributeCreatures(needToCreateOccupiers, len(model.AllEntityTypes), 1, 20, 0.5)
+	avg := needToCreateOccupiers / len(model.AllEntityTypes)
+	counts, err := DistributeCreatures(needToCreateOccupiers, len(model.AllEntityTypes), avg*3/4, avg*5/4, 2)
 
-	// herbivoreCount := settings.MinHerbivoreCount + rand.IntN(needToCreateOccupiers-settings.MinHerbivoreCount)
-	// needToCreateOccupiers -= herbivoreCount
-	// grassCount := settings.MinGrassCount + rand.IntN(needToCreateOccupiers-settings.MinGrassCount)
-	// needToCreateOccupiers -= grassCount
-	// predatorCount := rand.IntN(needToCreateOccupiers)
-	// needToCreateOccupiers -= predatorCount
-	// treeCount := needToCreateOccupiers / 2
-	// needToCreateOccupiers -= treeCount
-	// rockCount := needToCreateOccupiers
+	if err != nil {
+		slog.Error("Error in initialization", "error", err)
+		return
+	}
 
 	initActions := []service.Action{
 		service.SpawnOccupiers{
@@ -88,7 +84,7 @@ func main() {
 		service.RespawnOccupiers{
 			SimulationSettings: settings.SimulationSettings,
 			CreaturesSettings:  settings.CreaturesSettings,
-			MinimalCount:       1,
+			MinimalCount:       settings.MinHerbivoreCount,
 			FactoryFunc: func(OccupierParams model.OccupierParams, pos model.Position) (model.Occupier, error) {
 				return model.NewHerbivore(pos, OccupierParams.Speed, OccupierParams.HP), nil
 			},
@@ -113,7 +109,6 @@ func main() {
 }
 
 func DistributeCreatures(total, zones, min, max int, varianceFactor float64) ([]int, error) {
-	// 1. Проверка на физическую возможность
 	if total < zones*min || total > zones*max {
 		return nil, errors.New("невозможно распределить: total выходит за границы min/max")
 	}
@@ -123,36 +118,25 @@ func DistributeCreatures(total, zones, min, max int, varianceFactor float64) ([]
 
 	result := make([]int, zones)
 
-	// 2. Шаг "Идеальная равномерность"
-	// Распределяем базу
 	base := total / zones
-	remainder := total % zones // Остаток, который нужно распределить по 1 штуке
+	remainder := total % zones
 
 	for i := 0; i < zones; i++ {
 		result[i] = base
 		if i < remainder {
-			result[i]++ // Первым зонам достается по +1, чтобы сумма сошлась ровно в total
+			result[i]++
 		}
 	}
 
-	// 3. Шаг "Вносим случайность" (Метод переливаний)
-	// Сколько раз мы будем "перекидывать" существ между зонами.
-	// varianceFactor = 0.0 -> 0 перестановок (идеально ровно)
-	// varianceFactor = 1.0 -> zones * 5 перестановок (умеренный хаос)
-	// varianceFactor = 3.0 -> zones * 15 перестановок (сильный хаос, но в рамках min/max)
 	swaps := int(float64(zones) * 5 * varianceFactor)
 
 	for i := 0; i < swaps; i++ {
-		// Выбираем две случайные разные зоны
 		idx1 := rand.IntN(zones)
 		idx2 := rand.IntN(zones)
 		if idx1 == idx2 {
 			continue
 		}
 
-		// Пытаемся забрать у idx1 и отдать idx2
-		// Проверяем, что idx1 может отдать (не уйдет ниже min)
-		// и idx2 может принять (не уйдет выше max)
 		if result[idx1] > min && result[idx2] < max {
 			result[idx1]--
 			result[idx2]++
